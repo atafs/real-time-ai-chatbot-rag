@@ -1,2 +1,17 @@
-# real-time-ai-chatbot-rag
-This document outlines the architecture for a Real-Time AI Chatbot with Retrieval-Augmented Generation (RAG), designed to allow users to upload documents (e.g., PDFs) and ask questions answered using document context. The architecture is optimized for a 1–2 week development timeline, focusing on simplicity, functionality, and core RAG capabilities.
+# Real-Time AI Chatbot with RAG
+
+## Backend Setup (Day 1–2)
+
+### Overview
+
+- Initialized a Node.js project with Express for API endpoints.
+- Integrated Socket.IO for real-time chat functionality.
+- Added `pdf-parse` for extracting text from uploaded PDFs.
+- Set up file upload handling with `express-fileupload`.
+
+### Running the Server
+
+1. Install dependencies:
+   ```bash
+   npm install
+   ```

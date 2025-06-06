@@ -1,24 +1,38 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Socket.IO Test</title>
-</head>
-<body>
-  <input id="message" type="text" placeholder="Type a message">
-  <button onclick="sendMessage()">Send</button>
-  <div id="responses"></div>
-  <script src="https://cdn.jsdelivr.net/npm/socket.io@4.7.5/client-dist/socket.io.min.js"></script>
-  <script>
-    const socket = io('http://localhost:3000');
-    socket.on('connect', () => console.log('Connected to server'));
-    socket.on('response', (msg) => {
-      document.getElementById('responses').innerText += msg + '\n';
-    });
-    function sendMessage() {
-      const msg = document.getElementById('message').value;
-      socket.emit('chat', msg);
-      document.getElementById('message').value = '';
-    }
-  </script>
-</body>
+  <head>
+    <title>Socket.IO Test</title>
+  </head>
+  <body>
+    <input
+      id="message"
+      type="text"
+      placeholder="Type a message"
+      oninput="logInput()"
+    />
+    <button onclick="sendMessage()">Send</button>
+    <div id="responses"></div>
+    <script src="https://cdn.jsdelivr.net/npm/socket.io@4.7.5/client-dist/socket.io.min.js"></script>
+    <script>
+      const socket = io("http://localhost:3000");
+      socket.on("connect", () => console.log("Connected to server"));
+      socket.on("connect_error", (err) =>
+        console.error("Connection error:", err.message)
+      );
+      socket.on("response", (msg) => {
+        console.log("Received response:", msg);
+        document.getElementById("responses").innerText += msg + "\n";
+      });
+      function logInput() {
+        const msg = document.getElementById("message").value;
+        console.log("Input value:", msg);
+      }
+      function sendMessage() {
+        const msg = document.getElementById("message").value;
+        console.log("Sending message:", msg);
+        socket.emit("chat", msg);
+        document.getElementById("message").value = "";
+      }
+    </script>
+  </body>
 </html>
