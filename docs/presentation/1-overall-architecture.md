@@ -87,26 +87,6 @@ This document outlines the architecture for a **Real-Time AI Chatbot with Retrie
 
 ## Architecture Diagram
 
-```plaintext
-[User]
-   |
-[Frontend: React, Socket.IO-client]
-   | (File Upload: POST /upload)
-   | (Chat: Socket.IO 'chat' event)
-   |
-[Backend: Node.js, Express, Socket.IO]
-   | - Extracts PDF text (pdf-parse)
-   | - Generates embeddings (Hugging Face API)
-   | - Stores embeddings (Pinecone)
-   | - Queries Pinecone for context
-   | - Generates response (xAI Grok API)
-   |
-[External Services]
-   - Pinecone (Vector DB)
-   - Hugging Face API (Embeddings)
-   - xAI Grok API (LLM)
-```
-
 ![Architecture Diagram](https://kroki.io/plantuml/svg/eNp9U8FS4kAQvecr-kaoMlLlkcOWIKJUuWtWwl4wh2HSkpHJTKpnIvD39gSFbImeknT3e9Pvvcm184J8U2l4QqGTTFUIoxnclMKvrIcRyVJ5lL4hjKIeTPBFGQRpq9oaNN5Fy4VDgnhMdssvg1Fd9_NoOSVrPJri2cTMK_0FzK3coL-cPSZSK0b2n00CU6URFrW2ooDFLFROW4QVmGksGNcS_bEFXr66C7jd1YTOdThbsnQyhQx3nvue-MxQu61WWBTKrOEOTSj8bZD2kJKVzMD1w5mO1TgMM3wiw5GM0DBHelM8l3eUu2aVnNTDVvlSGfgCOccCSfILlimzSEazoH_sqyWYjPv59_P3zXod9p8KGTBHQe4n0I4jvCO7gVHKrsYPD7_7-X_xGV7CKxZ9Nr8DyWeGOQzhPstSiDtxDSF9nGcwaNov9v-YBcQhuSH0JD96gG8h7KjD1pJ_xPrJPTjCo1OrHTwjcXjym_XBjdDaBXVzv9fBqhc2VWpByu8jt1GmFiQqqKyxsiTLV8tTg53OMc9AgMA_w1Wn60pR2G3LK7Tr4mpxuFpXUXTNCzPuHVfoIhA=)
 
 ---
