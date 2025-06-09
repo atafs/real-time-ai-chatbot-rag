@@ -29,7 +29,7 @@ const App: React.FC = () => {
     if (file) {
       const formData = new FormData();
       formData.append("pdf", file);
-      await axios.post("http://localhost:3000/upload", formData);
+      await axios.post("http://localhost:4000/upload", formData);
       alert("File uploaded");
     }
   };
