@@ -3,7 +3,7 @@ import io, { Socket } from "socket.io-client";
 import axios from "axios";
 import "./App.css";
 
-const socket: Socket = io("http://localhost:3000");
+const socket: Socket = io("http://localhost:4000");
 
 interface Message {
   sender: "user" | "bot";
@@ -36,6 +36,7 @@ const App: React.FC = () => {
 
   const sendMessage = (): void => {
     if (input.trim()) {
+      console.log("Sending chat message:", input); // Debug log
       setMessages((prev) => [...prev, { sender: "user", text: input }]);
       socket.emit("chat", input);
       setInput("");

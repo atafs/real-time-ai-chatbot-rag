@@ -27,10 +27,7 @@ if (missingEnvVars.length > 0) {
 // Initialize logger
 const logger = winston.createLogger({
   level: "info",
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.json()
-  ),
+  format: winston.format.simple(),
   transports: [
     new winston.transports.Console(),
     new winston.transports.File({ filename: "server.log" }),
@@ -323,6 +320,7 @@ io.on("connection", (socket) => {
 
   socket.on("chat", async (message) => {
     try {
+      logger.info("Received chat message", { message });
       if (!message || typeof message !== "string" || message.trim() === "") {
         logger.warn("Invalid chat message received");
         socket.emit("response", "Error: Invalid or empty message");
@@ -330,6 +328,7 @@ io.on("connection", (socket) => {
       }
 
       const embeddingVector = await generateEmbedding(message);
+      logger.info("Embedding generated for query", { message });
       if (!embeddingVector || embeddingVector.length !== 384) {
         logger.error("Invalid query embedding format", {
           length: embeddingVector?.length,
@@ -346,26 +345,59 @@ io.on("connection", (socket) => {
         topK: 5,
         includeMetadata: true,
       });
+      logger.info("Pinecone query completed", {
+        matchCount: results.matches.length,
+      });
 
       const context = results.matches
         .map((m) => m.metadata?.text || "")
         .join(" ");
+      logger.info("Context prepared", { contextLength: context.length });
 
       const response = await axios.post(
-        "https://api.x.ai/v1/grok",
+        "https://api.x.ai/v1/chat/completions",
         {
-          prompt: `Answer based on this context: ${context}\nQuestion: ${message}`,
-          max_tokens: 150,
+          model: "grok-3-mini",
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are Grok, created by xAI. Answer based on the provided context.",
+            },
+            {
+              role: "user",
+              content: `Context: ${context}\nQuestion: ${message}`,
+            },
+          ],
+          max_tokens: 300,
         },
-        { headers: { Authorization: `Bearer ${process.env.XAI_API_KEY}` } }
+        {
+          headers: {
+            Authorization: `Bearer ${process.env.XAI_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          timeout: 10000, // 10s timeout
+        }
       );
+      logger.info("Grok API response received", {
+        response: response.data,
+        tokenUsage: response.data.usage,
+      });
 
       const answer =
-        response.data.choices?.[0]?.text || "No response generated";
+        response.data.choices?.[0]?.message?.content ||
+        response.data.choices?.[0]?.message?.reasoning_content ||
+        "No response generated";
       socket.emit("response", answer);
       logger.info("Chat response sent", { message, answer });
     } catch (error) {
-      logger.error("Chat error", { error: error.message, message });
+      const errorDetails = {
+        message: error.message,
+        status: error.response?.status,
+        data: error.response?.data,
+        headers: error.response?.headers,
+      };
+      logger.error("Chat error", { message, error: errorDetails });
       socket.emit("response", `Error processing query: ${error.message}`);
     }
   });
@@ -381,4 +413,5 @@ io.on("connection", (socket) => {
 
 server.listen(4000, () => {
   logger.info("Server started on http://localhost:4000");
+  logger.info("Test log to verify logger is working");
 });
