@@ -12,6 +12,15 @@
 ### Running the Server
 
 1. Install dependencies:
+
    ```bash
    npm install
    ```
+
+2. curl test request
+
+```
+curl -v -X POST http://localhost:3000/upload \
+  -F "pdf=@/Users/americotomas/Repos/staffengineer/real-time-ai-chatbot-rag/back-end/test.pdf" \
+  -H "Content-Type: multipart/form-data"
+```

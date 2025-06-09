@@ -5,6 +5,7 @@ const pdfParse = require("pdf-parse");
 const { Pinecone } = require("@pinecone-database/pinecone");
 const multer = require("multer");
 const { pipeline } = require("@huggingface/transformers");
+const axios = require("axios");
 require("dotenv").config();
 
 const app = express();
@@ -15,28 +16,36 @@ const pinecone = new Pinecone({ apiKey: process.env.PINECONE_API_KEY });
 // Configure multer for file uploads
 const upload = multer({ storage: multer.memoryStorage() });
 
-// Initialize the embedding model
+// Initialize the embedding model with retry
 let embedder;
-(async () => {
-  try {
-    embedder = await pipeline(
-      "feature-extraction",
-      "sentence-transformers/all-MiniLM-L6-v2"
-    );
-    console.log("Embedding model loaded successfully");
-  } catch (error) {
-    console.error("Failed to load embedding model:", error.message);
+async function loadEmbedder(retries = 3) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      embedder = await pipeline(
+        "feature-extraction",
+        "sentence-transformers/all-MiniLM-L6-v2",
+        { dtype: "fp32" } // Explicitly set dtype to suppress warning
+      );
+      console.log("Embedding model loaded successfully");
+      return;
+    } catch (error) {
+      console.error(`Attempt ${i + 1} failed:`, error.message);
+      if (i === retries - 1) {
+        console.error("Failed to load embedding model after retries");
+        return;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+    }
   }
-})();
+}
+loadEmbedder();
 
 // Check Pinecone configuration on startup
 async function checkPinecone() {
   try {
-    // List all indexes
     const indexList = await pinecone.listIndexes();
     console.log("Available Pinecone indexes:", indexList.indexes);
 
-    // Check if docs index exists
     const indexExists = indexList.indexes.some(
       (index) => index.name === "docs"
     );
@@ -49,9 +58,17 @@ async function checkPinecone() {
         name: "docs",
         dimension: 384,
         metric: "cosine",
-        spec: { serverless: { cloud: "aws", region: "us-east-1" } }, // Adjust region
+        spec: { serverless: { cloud: "aws", region: "us-east-1" } },
       });
-      console.log("Docs index created successfully");
+      // Wait for index to be ready
+      for (let i = 0; i < 10; i++) {
+        const indexes = await pinecone.listIndexes();
+        if (indexes.indexes.some((index) => index.name === "docs")) {
+          console.log("Docs index created successfully");
+          break;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 5000));
+      }
     }
   } catch (error) {
     console.error("Pinecone initialization error:", error.message);
@@ -81,35 +98,40 @@ app.post("/upload", upload.single("pdf"), async (req, res) => {
 
     console.log("PDF Text Length:", pdfText.text.length);
 
-    const chunkSize = 512;
-    const textChunks = pdfText.text.match(
-      new RegExp(`.{1,${chunkSize}}`, "g")
-    ) || [pdfText.text];
-    const embeddingVectors = [];
+    // Sentence-aware chunking
+    const sentences = pdfText.text.split(/(?<=[.!?])\s+/);
+    const textChunks = [];
+    let currentChunk = "";
+    for (const sentence of sentences) {
+      if (currentChunk.length + sentence.length <= 512) {
+        currentChunk += sentence + " ";
+      } else {
+        textChunks.push(currentChunk.trim());
+        currentChunk = sentence + " ";
+      }
+    }
+    if (currentChunk) textChunks.push(currentChunk.trim());
 
-    for (const chunk of textChunks) {
-      try {
-        const output = await embedder(chunk, {
-          pooling: "mean",
-          normalize: true,
-        });
-        const embeddingVector = Array.from(output.data);
+    // Parallel embedding generation
+    const embeddingPromises = textChunks.map(async (chunk) => {
+      const output = await embedder(chunk, {
+        pooling: "mean",
+        normalize: true,
+      });
+      return Array.from(output.data);
+    });
+    const embeddingVectors = await Promise.all(embeddingPromises);
 
-        console.log("Local Embedding Length:", embeddingVector.length);
-
-        if (!embeddingVector || embeddingVector.length !== 384) {
-          throw new Error(
-            `Invalid embedding format: expected 384-dimensional vector, got ${embeddingVector.length}`
-          );
-        }
-
-        embeddingVectors.push(embeddingVector);
-      } catch (error) {
-        console.error("Embedding Error:", error.message);
-        throw error;
+    for (const vector of embeddingVectors) {
+      console.log("Local Embedding Length:", vector.length);
+      if (!vector || vector.length !== 384) {
+        throw new Error(
+          `Invalid embedding format: expected 384-dimensional vector, got ${vector.length}`
+        );
       }
     }
 
+    // Average embeddings
     const avgEmbedding =
       embeddingVectors.length === 1
         ? embeddingVectors[0]
@@ -173,7 +195,17 @@ io.on("connection", (socket) => {
 
       const context = results.matches.map((m) => m.metadata.text).join(" ");
 
-      socket.emit("response", `Context retrieved: ${context}`);
+      // Integrate xAI Grok API for response
+      const response = await axios.post(
+        "https://api.x.ai/v1/grok",
+        {
+          prompt: `Answer based on this context: ${context}\nQuestion: ${message}`,
+          max_tokens: 150,
+        },
+        { headers: { Authorization: `Bearer ${process.env.XAI_API_KEY}` } }
+      );
+
+      socket.emit("response", response.data.choices[0].text);
     } catch (error) {
       console.error("Chat error:", error.message);
       socket.emit("response", `Error processing query: ${error.message}`);
