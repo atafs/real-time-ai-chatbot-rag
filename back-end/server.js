@@ -7,7 +7,7 @@ const multer = require("multer");
 const axios = require("axios");
 const cors = require("cors");
 require("dotenv").config();
-const winston = require("winston");
+const logger = require("./logger");
 
 // Validate environment variables
 const requiredEnvVars = [
@@ -23,16 +23,6 @@ if (missingEnvVars.length > 0) {
     `Missing environment variables: ${missingEnvVars.join(", ")}`
   );
 }
-
-// Initialize logger
-const logger = winston.createLogger({
-  level: "info",
-  format: winston.format.simple(),
-  transports: [
-    new winston.transports.Console(),
-    new winston.transports.File({ filename: "server.log" }),
-  ],
-});
 
 const app = express();
 const server = http.createServer(app);
