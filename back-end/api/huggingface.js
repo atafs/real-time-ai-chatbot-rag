@@ -1,5 +1,5 @@
 const axios = require("axios");
-const logger = require("../logger");
+const logger = require("../logs");
 
 // Generate embeddings using Hugging Face Inference API
 async function generateEmbedding(text) {

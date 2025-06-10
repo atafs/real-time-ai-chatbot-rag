@@ -1,6 +1,6 @@
-const logger = require("./logger");
+const logger = require("../logs");
 const axios = require("axios");
-const { generateEmbedding } = require("./api/huggingface");
+const { generateEmbedding } = require("../api/huggingface");
 
 // Handle Socket.IO connections
 function setupSocket(io, pinecone) {

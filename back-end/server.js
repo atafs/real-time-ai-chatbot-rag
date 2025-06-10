@@ -3,8 +3,8 @@ const { Server } = require("socket.io");
 const http = require("http");
 const cors = require("cors");
 require("dotenv").config();
-const logger = require("./logger");
-const { setupSocket } = require("./socket");
+const logger = require("./logs");
+const { setupSocket } = require("./sockets");
 const { getPineconeClient, initializePinecone } = require("./api/pinecone");
 const uploadEndpoint = require("./endpoints/upload");
 

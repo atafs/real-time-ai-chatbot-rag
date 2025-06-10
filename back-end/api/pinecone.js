@@ -1,5 +1,5 @@
 const { Pinecone } = require("@pinecone-database/pinecone");
-const logger = require("../logger");
+const logger = require("../logs");
 
 // Initialize Pinecone client
 const pinecone = new Pinecone({ apiKey: process.env.PINECONE_API_KEY });

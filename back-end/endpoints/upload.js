@@ -1,7 +1,7 @@
 const express = require("express");
 const multer = require("multer");
 const pdfParse = require("pdf-parse");
-const logger = require("../logger");
+const logger = require("../logs");
 const { getPineconeClient } = require("../api/pinecone");
 const { processTextChunks } = require("../api/huggingface");
 
