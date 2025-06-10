@@ -4,6 +4,24 @@
 
 The frontend of the RAG (Retrieval-Augmented Generation) Chatbot is a web-based interface built with React and TypeScript, designed to enable users to upload PDF, TXT, and DOCX documents, send queries, and receive real-time responses grounded in the uploaded content. It leverages Socket.IO for real-time communication, Axios for HTTP requests, and Tailwind CSS for a responsive, user-friendly design. Enhancements from Sprint 1 include improved UI/UX, support for multiple file types, robust error handling, performance optimizations, and a modularized codebase with comprehensive testing.
 
+## Work Plan
+
+The development of the RAG Chatbot frontend was executed in a two-week sprint, focusing on enhancing user experience, functionality, performance, and code quality. The plan was divided into two phases:
+
+- **Week 1: Core Enhancements and Functionality**
+
+  - **Days 1–2**: Implemented UI/UX improvements, including loading spinners, message timestamps, responsive Tailwind CSS styling, and ARIA labels for accessibility.
+  - **Days 3–4**: Added support for TXT and DOCX files, chat persistence with `localStorage`, and input validation with toast notifications.
+  - **Day 5**: Enhanced error handling with `react-toastify` for user-friendly messages and Socket.IO reconnect logic.
+
+- **Week 2: Performance, Code Quality, and Testing**
+  - **Days 6–7**: Optimized performance with debounced inputs, virtualized chat rendering via `react-window`, and lazy-loaded dependencies.
+  - **Days 8–9**: Modularized `App.tsx` into `ChatWindow`, `FileUploader`, and `MessageInput`, added TypeScript interfaces, and created a `useSocket` hook.
+  - **Days 10–12**: Developed unit tests (Jest, React Testing Library), E2E tests (Cypress), and snapshot tests for UI components.
+  - **Days 13–14**: Conducted code reviews, refactored for consistency, updated documentation, and prepared for deployment.
+
+This structured plan ensured timely delivery of a polished, scalable frontend with robust testing and documentation.
+
 ## Architecture
 
 ### Components
