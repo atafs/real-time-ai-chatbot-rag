@@ -26,7 +26,6 @@
         margin: 20px;
       }
       nav a {
-        margin: 0 10px;
         text-decoration: none;
         color: #0066cc;
         font-weight: bold;
@@ -34,11 +33,22 @@
       nav a:hover {
         text-decoration: underline;
       }
+      .architecture-nav {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .architecture-nav p {
+        margin: 0;
+      }
+      .architecture-nav a {
+        margin: 0;
+      }
     </style>
   </head>
   <body>
     <h1>Real-Time AI Chatbot with RAG</h1>
-    <nav>
+    <nav class="architecture-nav">
       <p>Architecture:</p>
       <a href="presentation/1-requirements-architecture">Requirements</a>
       <a href="presentation/2-implementation-architecture">Implementation</a>
