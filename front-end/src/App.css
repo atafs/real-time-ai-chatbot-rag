@@ -1,0 +1,25 @@
+.App {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+}
+.chat {
+  border: 1px solid #ccc;
+  padding: 10px;
+  height: 300px;
+  overflow-y: scroll;
+  margin: 20px 0;
+}
+.user {
+  text-align: right;
+  color: #007bff;
+}
+.bot {
+  text-align: left;
+  color: #28a745;
+}
+input,
+button {
+  margin: 5px;
+  padding: 8px;
+}
