@@ -44,32 +44,53 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="App">
-      <h1>RAG Chatbot</h1>
+    <div className="min-h-screen bg-blue-500 text-white p-4 flex flex-col">
+      <h1 className="text-3xl font-bold text-center">RAG Chatbot</h1>
       <input
         type="file"
         accept=".pdf"
+        className="my-2 p-2 bg-white text-black rounded"
         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
           setFile(e.target.files ? e.target.files[0] : null)
         }
       />
-      <button onClick={uploadFile}>Upload PDF</button>
-      <div className="chat">
+      <button
+        className="bg-blue-800 hover:bg-blue-900 text-white p-2 rounded mb-4"
+        onClick={uploadFile}
+      >
+        Upload PDF
+      </button>
+      <div className="chat flex-grow bg-white text-black p-4 rounded shadow">
         {messages.map((msg, i) => (
-          <p key={i} className={msg.sender}>
+          <p
+            key={i}
+            className={`mb-2 ${
+              msg.sender === "user"
+                ? "text-right text-blue-700"
+                : "text-left text-blue-800"
+            }`}
+          >
             {msg.text}
           </p>
         ))}
       </div>
-      <input
-        type="text"
-        value={input}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-          setInput(e.target.value)
-        }
-        placeholder="Ask a question"
-      />
-      <button onClick={sendMessage}>Send</button>
+      <div className="mt-4 flex">
+        <input
+          type="text"
+          value={input}
+          className="flex-grow p-2 rounded-l bg-white text-black"
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setInput(e.target.value)
+          }
+          placeholder="Ask a question"
+        />
+        <button
+          className="bg-blue-800 hover:bg-blue-900 text-white p-2 rounded-r"
+          onClick={sendMessage}
+        >
+          Send
+        </button>
+      </div>
     </div>
   );
 };
