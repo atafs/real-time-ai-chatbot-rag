@@ -1,53 +1,70 @@
-import React, { useState, useEffect, Suspense } from "react";
-import { io, Socket } from "socket.io-client";
-import { ToastContainer } from "react-toastify"; // Keep ToastContainer for rendering toasts
-import "react-toastify/dist/ReactToastify.css";
-import ChatWindow from "./components/ChatWindow";
-import FileUploader from "./components/FileUploader";
-import MessageInput from "./components/MessageInput";
-import useSocket from "./hooks/useSocket";
+import React, { useState, useEffect } from "react";
+import io, { Socket } from "socket.io-client";
+import axios from "axios";
+import { Message } from "./types"; // Adjust path if needed
 
-const socket: Socket = io("http://localhost:4000", { autoConnect: false });
-
-interface Message {
-  sender: "user" | "bot";
-  message: string;
-  timestamp: string;
-}
+const socket: Socket = io("http://localhost:4000");
 
 const App: React.FC = () => {
-  const [messages, setMessages] = useState<Message[]>(() => {
-    const saved = localStorage.getItem("messages");
-    return saved ? JSON.parse(saved) : [];
-  });
-  const [message, setInput] = useState<string>("");
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState<string>("");
   const [file, setFile] = useState<File | null>(null);
-  const { connect, disconnect } = useSocket(socket, setMessages);
 
   useEffect(() => {
-    localStorage.setItem("messages", JSON.stringify(messages));
-  }, [messages]);
+    socket.on("response", (response: string) => {
+      setMessages((prev) => [...prev, { sender: "bot", text: response }]);
+    });
+    return () => {
+      socket.off("response");
+    };
+  }, []);
 
-  useEffect(() => {
-    connect();
-    return () => disconnect();
-  }, [connect, disconnect]);
+  const uploadFile = async (): Promise<void> => {
+    if (file) {
+      const formData = new FormData();
+      formData.append("pdf", file);
+      await axios.post("http://localhost:4000/upload", formData);
+      alert("File uploaded");
+    }
+  };
+
+  const sendMessage = (): void => {
+    if (input.trim()) {
+      console.log("Sending chat message:", input);
+      setMessages((prev) => [...prev, { sender: "user", text: input }]);
+      socket.emit("chat", input);
+      setInput("");
+    }
+  };
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <div className="max-w-lg sm:max-w-2xl mx-auto p-4">
-        <h1 className="text-2xl font-bold text-center mb-4">RAG Chatbot</h1>
-        <FileUploader file={file} setFile={setFile} setMessages={setMessages} />
-        <ChatWindow messages={messages} />
-        <MessageInput
-          message={message}
-          setInput={setInput}
-          socket={socket}
-          setMessages={setMessages}
-        />
-        <ToastContainer position="top-right" autoClose={3000} />
+    <div className="App">
+      <h1>RAG Chatbot</h1>
+      <input
+        type="file"
+        accept=".pdf"
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+          setFile(e.target.files ? e.target.files[0] : null)
+        }
+      />
+      <button onClick={uploadFile}>Upload PDF</button>
+      <div className="chat">
+        {messages.map((msg, i) => (
+          <p key={i} className={msg.sender}>
+            {msg.text} {/* Changed from msg.text */}
+          </p>
+        ))}
       </div>
-    </Suspense>
+      <input
+        type="text"
+        value={input}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+          setInput(e.target.value)
+        }
+        placeholder="Ask a question"
+      />
+      <button onClick={sendMessage}>Send</button>
+    </div>
   );
 };
 

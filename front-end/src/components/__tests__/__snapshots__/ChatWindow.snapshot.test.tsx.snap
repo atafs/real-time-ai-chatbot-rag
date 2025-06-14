@@ -1,0 +1,42 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ChatWindow snapshot 1`] = `
+<DocumentFragment>
+  <div
+    aria-live="polite"
+    class="chat border border-gray-300 p-4 h-96 overflow-y-scroll mb-4"
+    role="log"
+  >
+    <p
+      class="mb-2 text-right text-blue-600"
+    >
+      <span
+        class="font-bold"
+      >
+        user: 
+      </span>
+      Hello! 
+      <span
+        class="text-xs text-gray-500"
+      >
+        (10:00)
+      </span>
+    </p>
+    <p
+      class="mb-2 text-left text-green-600"
+    >
+      <span
+        class="font-bold"
+      >
+        bot: 
+      </span>
+      Hi! 
+      <span
+        class="text-xs text-gray-500"
+      >
+        (10:01)
+      </span>
+    </p>
+  </div>
+</DocumentFragment>
+`;

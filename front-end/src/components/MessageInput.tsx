@@ -19,7 +19,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
     if (message.trim()) {
       const newMessage: Message = {
         sender: "user",
-        message: message,
+        text: message,
         timestamp: new Date().toISOString(),
       };
       setMessages((prev) => [...prev, newMessage]);

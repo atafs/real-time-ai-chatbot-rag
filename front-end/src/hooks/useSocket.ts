@@ -13,7 +13,7 @@ const useSocket = (
         ...prev,
         {
           sender: "bot",
-          message: response, // Changed 'text' to 'message'
+          text: response, // Changed 'text' to 'message'
           timestamp: new Date().toISOString(),
         },
       ]);
