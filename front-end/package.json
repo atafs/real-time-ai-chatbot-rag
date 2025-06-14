@@ -61,11 +61,5 @@
     "postcss": "^8.5.4",
     "postcss-loader": "^8.1.1",
     "tailwindcss": "^4.1.8"
-  },
-  "jest": {
-    "testEnvironment": "jsdom",
-    "setupFilesAfterEnv": [
-      "<rootDir>/src/setupTests.ts"
-    ]
   }
 }

@@ -1,3 +1,4 @@
+// src/components/ChatWindow.tsx
 import React from "react";
 import { Message } from "../types";
 
@@ -7,7 +8,11 @@ interface ChatWindowProps {
 
 const ChatWindow: React.FC<ChatWindowProps> = ({ messages }) => {
   return (
-    <div className="chat border border-gray-300 p-4 h-96 overflow-y-scroll mb-4">
+    <div
+      className="chat border border-gray-300 p-4 h-96 overflow-y-scroll mb-4"
+      role="log"
+      aria-live="polite"
+    >
       {messages.map((msg, i) => (
         <p
           key={i}
@@ -18,7 +23,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ messages }) => {
           }`}
         >
           <span className="font-bold">{msg.sender}: </span>
-          {msg.message}{" "}
+          {msg.text}{" "}
           <span className="text-xs text-gray-500">({msg.timestamp})</span>
         </p>
       ))}

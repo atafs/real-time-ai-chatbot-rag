@@ -1,5 +1,6 @@
+// src/types.ts
 export interface Message {
   sender: "user" | "bot";
-  message: string;
+  text: string;
   timestamp: string;
 }
