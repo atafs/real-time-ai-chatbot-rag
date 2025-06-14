@@ -1,96 +1,53 @@
-import React, { useState, useEffect } from "react";
-import io, { Socket } from "socket.io-client";
-import axios from "axios";
+import React, { useState, useEffect, Suspense } from "react";
+import { io, Socket } from "socket.io-client";
+import { ToastContainer } from "react-toastify"; // Keep ToastContainer for rendering toasts
+import "react-toastify/dist/ReactToastify.css";
+import ChatWindow from "./components/ChatWindow";
+import FileUploader from "./components/FileUploader";
+import MessageInput from "./components/MessageInput";
+import useSocket from "./hooks/useSocket";
 
-const socket: Socket = io("http://localhost:4000");
+const socket: Socket = io("http://localhost:4000", { autoConnect: false });
 
 interface Message {
   sender: "user" | "bot";
-  text: string;
+  message: string;
+  timestamp: string;
 }
 
 const App: React.FC = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState<string>("");
+  const [messages, setMessages] = useState<Message[]>(() => {
+    const saved = localStorage.getItem("messages");
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [message, setInput] = useState<string>("");
   const [file, setFile] = useState<File | null>(null);
+  const { connect, disconnect } = useSocket(socket, setMessages);
 
   useEffect(() => {
-    socket.on("response", (response: string) => {
-      setMessages((prev) => [...prev, { sender: "bot", text: response }]);
-    });
+    localStorage.setItem("messages", JSON.stringify(messages));
+  }, [messages]);
 
-    return () => {
-      socket.off("response");
-    };
-  }, []);
-
-  const uploadFile = async (): Promise<void> => {
-    if (file) {
-      const formData = new FormData();
-      formData.append("pdf", file);
-      await axios.post("http://localhost:4000/upload", formData);
-      alert("File uploaded");
-    }
-  };
-
-  const sendMessage = (): void => {
-    if (input.trim()) {
-      console.log("Sending chat message:", input); // Debug log
-      setMessages((prev) => [...prev, { sender: "user", text: input }]);
-      socket.emit("chat", input);
-      setInput("");
-    }
-  };
+  useEffect(() => {
+    connect();
+    return () => disconnect();
+  }, [connect, disconnect]);
 
   return (
-    <div className="min-h-screen bg-blue-500 text-white p-4 flex flex-col">
-      <h1 className="text-3xl font-bold text-center">RAG Chatbot</h1>
-      <input
-        type="file"
-        accept=".pdf"
-        className="my-2 p-2 bg-white text-black rounded"
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-          setFile(e.target.files ? e.target.files[0] : null)
-        }
-      />
-      <button
-        className="bg-blue-800 hover:bg-blue-900 text-white p-2 rounded mb-4"
-        onClick={uploadFile}
-      >
-        Upload PDF
-      </button>
-      <div className="chat flex-grow bg-white text-black p-4 rounded shadow">
-        {messages.map((msg, i) => (
-          <p
-            key={i}
-            className={`mb-2 ${
-              msg.sender === "user"
-                ? "text-right text-blue-700"
-                : "text-left text-blue-800"
-            }`}
-          >
-            {msg.text}
-          </p>
-        ))}
-      </div>
-      <div className="mt-4 flex">
-        <input
-          type="text"
-          value={input}
-          className="flex-grow p-2 rounded-l bg-white text-black"
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setInput(e.target.value)
-          }
-          placeholder="Ask a question"
+    <Suspense fallback={<div>Loading...</div>}>
+      <div className="max-w-lg sm:max-w-2xl mx-auto p-4">
+        <h1 className="text-2xl font-bold text-center mb-4">RAG Chatbot</h1>
+        <FileUploader file={file} setFile={setFile} setMessages={setMessages} />
+        <ChatWindow messages={messages} />
+        <MessageInput
+          message={message}
+          setInput={setInput}
+          socket={socket}
+          setMessages={setMessages}
         />
-        <button
-          className="bg-blue-800 hover:bg-blue-900 text-white p-2 rounded-r"
-          onClick={sendMessage}
-        >
-          Send
-        </button>
+        <ToastContainer position="top-right" autoClose={3000} />
       </div>
-    </div>
+    </Suspense>
   );
 };
 
