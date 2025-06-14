@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import io, { Socket } from "socket.io-client";
 import axios from "axios";
-import "./App.css";
 
 const socket: Socket = io("http://localhost:4000");
 
