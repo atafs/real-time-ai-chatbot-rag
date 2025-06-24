@@ -105,7 +105,45 @@ This document outlines the updated architecture for Sprint 1 of the **Real-Time 
 
 The architecture remains similar to Sprint 0 but includes multi-file processing and query expansion. Below is an updated PlantUML diagram.
 
-![Architecture Diagram](https://kroki.io/plantuml/svg/eNp9U81u4kAQvecr-kaoMlllkcOWIKJUuWtWwl4wh2HSkpHJTKpnIvD39gSFbImeknT3e9Pvvcm184J8U2l4QqGTTFUIoxnclMKvrIcRyVJ5lL4hjKIeTPBFGQRpq9oaNN5Fy4VDgnhMdssvg1Fd9_NoOSVrPJri2cTMK_0FzK3coL-cPSZSK0b2n00CU6URFrW2ooDFLFROW4QVmGksGNcS_bEFXr66C7jd1YTOdThbsnQyhQx3nvue-MxQu61WWBTKrOEOTSj8bZD2kJKVzMD1w5mO1TgMM3wiw5GM0DBHelM8l3eUu2aVnNTDVvlSGfgCOccCSfILlimzSEazoH_sqyWYjPv59_P3zXod9p8KGTBHQe4n0I4jvCO7gVHKrsYPD7_7-X_xGV7CKxZ9Nr8DyWeGOQzhPstSiDtxDSF9nGcwaNov9v-YBcQhuSH0JD96gG8h7KjD1pJ_xPrJPTjCo1OrHTwjcXjym_XBjdDaBXVzv9fBqhc2VWpByu8jt1GmFiQqqKyxsiTLV8tTg53OMc9AgMA_w1Wn60pR2G3LK7Tr4mpxuFpXUXTNCzPuHVfoIhA=)
+```
+@startuml class
+skinparam monochrome true
+skinparam defaultFontSize 14
+
+class User as "User (Browser/App)"
+class Frontend as "Frontend\n(React, Socket.IO-client)\n- File Upload (Drag-and-Drop)\n- Real-Time Chat"
+class Backend as "Backend\n(Node.js, Express, Socket.IO)\n- File Processing (PDF/TXT/DOCX)\n- Embedding Gen\n- Query Expansion\n- Response Gen"
+class ExternalServices as "External Services"
+class Pinecone as "Pinecone\n(Vector DB)"
+class HuggingFace as "Hugging Face\n(Embeddings, Query Expansion)"
+class xAIGrok as "xAI Grok API\n(LLM)"
+
+User -down-> Frontend : HTTP (File Upload: POST /upload)\nSocket.IO (Chat: 'chat' event)
+Frontend <--> Backend : HTTP/Socket.IO
+Backend <--> ExternalServices : External API Calls
+ExternalServices <--> Pinecone : (Vector Storage)
+ExternalServices <--> HuggingFace : (Embeddings, Query Expansion)
+ExternalServices <--> xAIGrok : (Response Generation)
+
+note right of Frontend
+  - Drag-and-Drop File Upload (PDF/TXT/DOCX)
+  - Real-Time Chat with Animations
+end note
+
+note right of Backend
+  - File Processing: pdf-parse, mammoth, fs
+  - Query Expansion via Hugging Face
+  - Optimized Chunking (Overlap: 100, Max: 512)
+end note
+
+note right of ExternalServices
+  - API Integration for Embeddings, Expansion, and LLM
+end note
+
+@enduml
+```
+
+![Architecture Diagram](https://kroki.io/plantuml/svg/eNp9VE1zmzAQvfMrdnIJnoE47rQXptOJPxPPJDWtSSeHXFRYY9UgMZKwnf76LrJFsDPuBbTSe7uPtyvutGHK1GUBacG09vSGi4opVkIphUzXSpYIRtXYOclwxerCzKQwS_4XYfDZ8ywbnjUqYBqu7MIfKbmjRX9YVb2rI2SmiIYiszAXvAr_J7LUBLCU6QbNzXwRpgVHYXqvIoQZLxCeq0KyDPyJYnnIRBZOlKzsMVGLMOEkdLxmxhUaMcp0rHNcU5nvMsObPzqA6b5SqHWn4nupWMmUzrjIwY8ns37ykvQni_GLRUzL35hlzdk9imbjR43qrcnHhOZSHBTpSgqNDcTpme4NKsGKJaotp_RWmNsEt-vQMReYSoEW5QLS_wtTIxVMRq2hD3Wek5oZSw_gYwzNBhFaufSpZ0rbFPvh_F7JjaXTGmwwjOdEf3x8Iphn-xlmcifCb-8tjOAhSWLwO_2JIF4sE-jXNiLDWnvBb7oTwXVKr2vAbdNdr831NaTMrmeHxP2W67kDi_rgZNRuNaphzIpCex9Qltv6GoHzckkPlmPvAqPrL5H-5-eFDM5eYncHAxUzluUJaRAUz9cG5Kq11wMI4WTaTy_CyWRa8OlFgB03axgKXto62msMbEqdFzyaa1OczX8EVbYK6dprDKBkZSnNOoCVttizz4ctZ9CdPgtaVIaX9JfISFMtNvZOLbaoClZFMLi9DeCJ7SP4MvjUuyjw3FabuOn0nIzKDzbCilrZbU6rKwDyD2iQO_nvaEk_Pe8fx0GsLw==)
 
 ---
 
