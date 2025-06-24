@@ -101,7 +101,7 @@ This document outlines the updated architecture for Sprint 1 of the **Real-Time 
 
 ---
 
-## Architecture Diagram
+## Application Diagram
 
 The architecture remains similar to Sprint 0 but includes multi-file processing and query expansion. Below is an updated PlantUML diagram.
 
