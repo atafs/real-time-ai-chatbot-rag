@@ -1,14 +1,9 @@
 import React, { useState, useEffect } from "react";
 import io, { Socket } from "socket.io-client";
 import axios from "axios";
-import "./App.css";
+import { Message } from "./types"; // Adjust path if needed
 
 const socket: Socket = io("http://localhost:4000");
-
-interface Message {
-  sender: "user" | "bot";
-  text: string;
-}
 
 const App: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -19,7 +14,6 @@ const App: React.FC = () => {
     socket.on("response", (response: string) => {
       setMessages((prev) => [...prev, { sender: "bot", text: response }]);
     });
-
     return () => {
       socket.off("response");
     };
@@ -36,7 +30,7 @@ const App: React.FC = () => {
 
   const sendMessage = (): void => {
     if (input.trim()) {
-      console.log("Sending chat message:", input); // Debug log
+      console.log("Sending chat message:", input);
       setMessages((prev) => [...prev, { sender: "user", text: input }]);
       socket.emit("chat", input);
       setInput("");
@@ -57,7 +51,7 @@ const App: React.FC = () => {
       <div className="chat">
         {messages.map((msg, i) => (
           <p key={i} className={msg.sender}>
-            {msg.text}
+            {msg.text} {/* Changed from msg.text */}
           </p>
         ))}
       </div>

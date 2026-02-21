@@ -18,9 +18,10 @@ A real-time AI chatbot using Retrieval-Augmented Generation (RAG) to answer ques
    ```
 
 3. **Set Up Environment Variables**
+
    Create a `.env` file in the project root and add the following keys (replace placeholders with actual values):
 
-   ```
+   ```plaintext
    PINECONE_API_KEY=your-pinecone-api-key
    HUGGINGFACE_API_KEY=your-huggingface-api-key
    XAI_API_KEY=your-xai-api-key
@@ -67,3 +68,14 @@ ffmpeg -i demos/demo_1-0-0_2025-06-10.mp4 -vframes 1 -q:v 2 demos/demo_1-0-0_202
 
 - This command extracts a single frame from the video and saves it as a JPEG image in the `demos/` folder.
 - Ensure the video file is in the `demos/` folder before running the command.
+
+## Git Workflow
+
+To maintain a clean commit history, you can squash multiple commits into a single commit. For example, to combine all commits on the `main` branch into one for a clean release (e.g., Sprint 0, v1.0.0), use the following command:
+
+```bash
+git rebase -i $(git rev-list --max-parents=0 HEAD)
+```
+
+- **How it works**: This command starts an interactive rebase from the initial commit (`--max-parents=0` identifies the root commit). In the editor, change all lines except the first from `pick` to `squash` (or `s`) to combine commits. Edit the commit message to describe the consolidated changes (e.g., "Sprint 0 (v1.0.0): Initial RAG Chatbot release").
+- **Warning**: This rewrites history, so back up your branch (`git branch backup-main`) and coordinate with collaborators before force-pushing (`git push origin main --force`).

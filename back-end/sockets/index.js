@@ -58,7 +58,7 @@ function setupSocket(io, pinecone) {
                 content: `Context: ${context}\nQuestion: ${message}`,
               },
             ],
-            max_tokens: 300,
+            max_tokens: 1000,
           },
           {
             headers: {
